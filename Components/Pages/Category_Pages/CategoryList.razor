@@ -10,13 +10,13 @@
 
 @if (IsProcessing)
 {
-    <div class="position-absolute w-75 h-75 d-flex flex-column align-items-center bg-white justify-content-center">
+    <div class="position-absolute w-100 vh-100 d-flex flex-column align-items-center bg-white justify-content-center">
         <img src="/images/loading.gif" alt="loading"/>
     </div>
 }
 else
 {
-    <div class="card shadow border-0 mt-4">
+    <div class="card shadow border-0 m-4">
         <div class="card-header bg-black bg-gradient ml-0 py-3">
             <div class="row">
                 <div class="col-12 text-center">
@@ -32,7 +32,7 @@ else
                     </a>
                 </div>
             </div>
-            @if (Products.Any())
+            @if (Categories.Any())
             {   <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
@@ -41,12 +41,13 @@ else
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var obj in Products)
+                        @foreach (var obj in Categories)
                         {
                             <tr>
                                 <td>@obj.Name</td>
                                 <td>
-                                    <a href="/Category/update/@obj.Id" class="btn btn-sm btn-primary me-2">
+@*                                     <a href="/Category/update/@obj.Id" class="btn btn-primary">
+ *@                                 <a href="@($"category/update/{obj.Id}")" class="btn btn-primary">
                                         <i class="bi bi-pencil-square"></i> Edit
                                     </a>
                                     <button class="btn btn-danger" @onclick="() => HandleDelete(obj.Id)">
@@ -64,48 +65,40 @@ else
 
 @code {
     private bool IsProcessing { get; set; } = true;
-    private IEnumerable<Category> Products { get; set; } = new List<Category>();
+    private IEnumerable<Category> Categories { get; set; } = new List<Category>();
     private int DeleteCategoryID { get; set; } = 0;
-
     protected override async Task OnInitializedAsync()
     {
-        // IsProcessing = true;
-        // await Task.Delay(1);
-        // await Task.Yield();
-        // await LoadProducts();
-        //Thread.Sleep(5000);
-        // IsProcessing = false;
+
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if(firstRender)
         {
-            // IsProcessing = true;
-            await LoadProducts();
+            await LoadCategories();
             IsProcessing = false;
             StateHasChanged();
         }
     }
 
-    private async Task LoadProducts()
+    private async Task LoadCategories()
     {
-        // Thread.Sleep(5000);
-        Products = await _categoryRepository.GetAllAsync();
-        //Load Products
+        Categories = await _categoryRepository.GetAllAsync();
+        //Load Categories
     }
 
     private void HandleDelete(int id)
     {
         //Handle Delete
         DeleteCategoryID = id;
-        _JS.InvokeVoidAsync("ShowConfirmationModel");
+        _JS.InvokeVoidAsync("ShowConfirmationModal");
     }
 
     private async Task ConfirmDelete_Click(bool isConfirmed)
     {
         IsProcessing = true;
-        await _JS.InvokeVoidAsync("HideConfirmationModel");
+        await _JS.InvokeVoidAsync("HideConfirmationModal");
         if (isConfirmed && DeleteCategoryID != 0)
         {
             var result = await _categoryRepository.DeleteAsync(DeleteCategoryID);
@@ -113,7 +106,7 @@ else
                 _JS?.ToastrSuccess("Category Deleted Successfully.");
             else
                 _JS?.ToastrError("Error Encountered while deleting");
-            await LoadProducts();
+            await LoadCategories();
         }
         DeleteCategoryID = 0;
         IsProcessing = false;

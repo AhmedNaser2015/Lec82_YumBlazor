@@ -100,13 +100,13 @@ else
     private void HandleDelete(int id)
     {
         DeleteProductID = id;
-        _JS.InvokeVoidAsync("ShowConfirmationModel");
+        _JS.InvokeVoidAsync("ShowConfirmationModal");
     }
 
     private async Task ConfirmDelete_Click(bool isConfirmed)
     {
         IsProcessing = true;
-        await _JS.InvokeVoidAsync("HideConfirmationModel");
+        await _JS.InvokeVoidAsync("HideConfirmationModal");
         if (isConfirmed && DeleteProductID != 0)
         {
             var result = await _productRepository.DeleteAsync(DeleteProductID);
